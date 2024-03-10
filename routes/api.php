@@ -28,6 +28,9 @@ Route::get('/', function(){
 })->name('login');
 
 Route::get('product', [productController::class, 'index'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-list'));
+Route::get('product/{id}', [productController::class, 'show'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-list'));
+Route::put('product/{id}', [productController::class, 'update'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-list'));
+Route::delete('product/{id}', [productController::class, 'destroy'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-list'));
 Route::post('product', [productController::class, 'store'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-store'));
 Route::post('registerUser', [authController::class, 'registerUser']);
 Route::post('loginUser', [authController::class, 'loginUser']);
