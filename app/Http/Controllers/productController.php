@@ -110,7 +110,7 @@ class productController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'berhasil update data'
+            'message' => 'Berhasil update data'
         ], 200);
     }
 
@@ -133,7 +133,7 @@ class productController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'berhasil menghapus data'
+            'message' => 'Berhasil menghapus data'
         ], 200);
     }
 }
