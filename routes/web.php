@@ -25,3 +25,5 @@ Route::get('/marker', function () {
     return view('leaflet.marker');
 });
 
+
+

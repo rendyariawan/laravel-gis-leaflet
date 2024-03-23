@@ -8,11 +8,13 @@ use Illuminate\Support\Facades\Validator;
 
 class productController extends Controller
 {
+    
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        
         $data = product::orderBy('name', 'asc')->get();
         return response()->json([
             'status' => true,
