@@ -38,7 +38,7 @@ Route::get('/', function(){
 // Route::post('logoutUser', [authController::class, 'logout'])->middleware('auth:sanctum');
 // Route::get('me', [authController::class, 'me'])->middleware('auth:sanctum');
 Route::post('registerUser', [authController::class, 'registerUser']);
-Route::post('loginUser', [authController::class, 'loginUser']);
+Route::post('loginUser', [authController::class, 'loginUser'])->middleware('throttle:login');
 
 Route::group(['middleware' => ['auth:sanctum', 'checkHost']], function () {
     // Rute-rute yang memerlukan autentikasi dan pengecekan role
