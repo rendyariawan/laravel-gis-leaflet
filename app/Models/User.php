@@ -47,6 +47,9 @@ class User extends Authenticatable
         return $this->belongsToMany(role::class, 'user_role');
     }
 
-    
+    public function emailVerified()
+    {
+        return $this->hasOne(MailVerification::class);
+    }
 
 }

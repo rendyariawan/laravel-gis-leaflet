@@ -40,7 +40,7 @@ Route::get('/', function(){
 Route::post('registerUser', [authController::class, 'registerUser']);
 Route::post('loginUser', [authController::class, 'loginUser'])->middleware('throttle:login');
 
-Route::group(['middleware' => ['auth:sanctum', 'checkHost']], function () {
+Route::group(['middleware' => ['auth:sanctum', 'checkHost', 'checkEmail']], function () {
     // Rute-rute yang memerlukan autentikasi dan pengecekan role
     Route::get('product', [productController::class, 'index'])->middleware(('ablity:product-list'));
     Route::get('product/{id}', [productController::class, 'show'])->middleware(('ablity:product-list'));
@@ -51,3 +51,7 @@ Route::group(['middleware' => ['auth:sanctum', 'checkHost']], function () {
     Route::get('me', [authController::class, 'me']);
     Route::get('refresh', [authController::class, 'refreshToken']);
 });
+
+Route::get('getData/{id}', [authController::class, 'getData']);
+Route::post('verification', [authController::class, 'verificationToken']);
+Route::post('refreshverification', [authController::class, 'refreshVerificationToken']);

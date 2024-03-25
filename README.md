@@ -64,3 +64,28 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Pribadi
+
+Backend
+
+Membuat auth dengan token dikirm lewat email
+Membuat reset password dikirm lewat email (dev)
+
+Teknologi:
+-sancthum
+-mailer
+-rap2hpoutre/fast-excel (dev)
+
+rencana next:
+-peta map leafleat dengan database
+-redis cache
+-upload ke server
+
+link: https://dbdiagram.io https://github.com/rap2hpoutre/fast-excel
+
+cara install pertama
+git clone
+npm install
+setting mailer
+setting database

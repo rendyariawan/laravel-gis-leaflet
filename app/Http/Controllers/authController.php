@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MailVerification;
 use App\Models\role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -9,20 +10,180 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
-
+use Illuminate\Support\Facades\Crypt;
 class authController extends Controller
 {
+    // public function getData(string $id){
+    //     $token = MailVerification::where('user_id', $id)->first();
+        
+    //     // $data = User::with('roles', 'emailVerified')->get()->toArray();
+    //     if($token == null){
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'data user tidak ditemukan'
+    //         ], 404);
+    //     }
+
+    //     $idtoken = $token->token;
+        
+
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'data user',
+    //         // 'data' => $data,
+    //         'token' => $idtoken
+    //     ], 200);
+    // }
+
+    public function refreshVerificationToken(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'idtoken' => 'required|string|min:10',
+            'email' => 'required|email',
+        ], [
+            'idtoken.required' => 'Token tidak boleh kosong',
+            'email.email' => 'Masukan email yang valid',
+            'idtoken.min' => 'Token terlalu pendek :min characters.',
+            'email.required' => 'Email tidak boleh kosong'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'proses validasi gagal',
+                'data' => $validator->errors()
+            ], 401);
+        }
+
+        $idtokenbaru = Crypt::decrypt($request->idtoken); //$request->idtoken;
+        // dd($idtoken);
+
+        // $datauser = new User();
+        // $datamail = new MailVerification();
+
+        
+
+        $data = MailVerification::where('user_id', $idtokenbaru)->where('email', $request->email)->first();
+
+
+        // dd($data);
+        if($data == null || $data->user_id == null){
+            return response()->json([
+                'status' => false,
+                'message' => 'data user tidak ditemukan'
+            ], 404);
+        }
+
+        if($data->expires_at > now()){
+            return response()->json([
+                'status' => false,
+                'message' => 'token aktif'
+            ], 403);
+        }
+
+        $data->user_id = $idtokenbaru;
+        $data->token = rand(100000, 999999);
+        $data->email = $request->email;
+        $data->expires_at = now()->addMinutes(2);
+        $data->update();
+
+        $idtoken = Crypt::encrypt($data->user_id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'berhasil refresh data baru',
+            'idtoken' => $idtoken
+
+        ], 201);
+        
+    }
+
+    public function verificationToken(Request $request) 
+    {
+        // dd($request);
+        
+        $validator = Validator::make($request->all(), [
+            'idtoken' => 'required|string|min:10',
+            'token' => 'required|string',
+        ], [
+            'idtoken.required' => 'ID Token tidak boleh kosong',
+            'idtoken.min' => 'ID Token terlalu pendek :min characters.',
+            'token.required' => 'Token tidak boleh kosong'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'proses validasi gagal',
+                'data' => $validator->errors()
+            ], 401);
+        }
+
+        $id = Crypt::decrypt($request->idtoken);
+        $token = $request->token;
+        
+        $datamail = MailVerification::where('token', $token)->first();
+
+        // dd($datamail);
+
+        if($datamail == null || $id != $datamail->user_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'data user tidak ditemukan'
+            ], 404);
+        }
+
+        if($datamail->expires_at <= now()){
+            return response()->json([
+                'status' => false,
+                'message' => 'token expired'
+            ], 401);
+
+        }
+
+        $user = User::find($id);
+        if($user == null){
+            return response()->json([
+                'status' => false,
+                'message' => 'data user tidak ditemukan'
+            ], 404);
+        }
+
+        $user->email_verified_at = now();
+        $user->verified = 1;
+        $user->update();
+
+        $datamail->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'email terverifikasi',
+        ], 200);
+
+    }
+
     
     public function registerUser(Request $request)
     {
         $datauser = new User();
-        $rules = [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required',
-        ];
+        $datamail = new MailVerification();
+    
 
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'name.required' => 'Nama tidak boleh kosong.',
+            'email.required' => 'Email tidak boleh kosong.',
+            'email.email' => 'Masukan email yang valid.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Password tidak boleh kosong.',
+            'password.min' => 'Password terlalu pendek :min characters.',
+            'password.confirmed' => 'Password tidak sama.',
+        ]);
 
         if($validator->fails()){
             return response()->json([
@@ -37,21 +198,44 @@ class authController extends Controller
         $datauser->password = Hash::make($request->password);
         $datauser->save();
 
+        
+        $datamail->user_id = $datauser->id;
+        $datamail->token = rand(100000, 999999);
+        $datamail->email = $request->email;
+        $datamail->expires_at = now()->addMinutes(2);
+        $datamail->save();
+
+        $idtoken = Crypt::encrypt($datauser->id);
+
         return response()->json([
             'status' => true,
             'message' => 'berhasil memasukan data baru',
+            'data' => $datauser,
+            'idtoken' => $idtoken
+
         ], 201);
     }
 
 
     public function loginUser(Request $request)
     {
-        $rules = [
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required',
-        ];
+            'password' => 'required|string|min:6',
+        ], [
+            'email.required' => 'Email tidak boleh kosong.',
+            'email.email' => 'Masukan email yang valid.',
+            'password.required' => 'Password tidak boleh kosong.',
+            'password.min' => 'Password terlalu pendek :min characters.',
+        ]);
 
-        $validator = Validator::make($request->all(), $rules);
+        if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'proses validasi gagal',
+                'data' => $validator->errors()
+            ], 401);
+        }
 
         if($validator->fails()){
             return response()->json([

@@ -35,11 +35,17 @@ class productController extends Controller
             'description' => 'required',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules, 
+        [
+            'name.required' => 'wajib diisi',
+            'price.required' => 'wajib diisi',
+            'description.required' => 'wajib diisi',
+        ]);
+
         if($validator->fails()){
             return response()->json([
                 'status' => false,
-                'message' => 'gagal memasukan data',
+                'message' => 'proses validasi gagal',
                 'data' => $validator->errors()
             ], 401);
         }
@@ -96,11 +102,17 @@ class productController extends Controller
             'description' => 'required',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules, 
+        [
+            'name.required' => 'wajib diisi',
+            'price.required' => 'wajib diisi',
+            'description.required' => 'wajib diisi',
+        ]);
+
         if($validator->fails()){
             return response()->json([
                 'status' => false,
-                'message' => 'gagal memasukan data',
+                'message' => 'proses validasi gagal',
                 'data' => $validator->errors()
             ], 401);
         }
