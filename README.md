@@ -67,12 +67,12 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ## Pribadi
 
-Backend </br>
+## Beckend
 
 - Membuat auth dengan token dikirm lewat email </br>
 - Membuat reset password dikirm lewat email (dev) </br>
 
-Teknologi: </br>
+## Teknologi
 -sancthum</br>
 -mailer</br>
 -rap2hpoutre/fast-excel (dev)</br>
@@ -82,7 +82,8 @@ rencana next:</br>
 -redis cache</br>
 -upload ke server</br>
 
-link: https://dbdiagram.io https://github.com/rap2hpoutre/fast-excel</br>
+- link: https://dbdiagram.io </br>
+- https://github.com/rap2hpoutre/fast-excel</br>
 
 cara install pertama</br>
 git clone</br>
