@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\KodeVerifikasiMail;
 use App\Models\MailVerification;
 use App\Models\role;
 use App\Models\User;
@@ -11,6 +12,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ResetPasswordMail;
+use App\Models\PasswordResetToken;
+use Illuminate\Support\Str;
+
 class authController extends Controller
 {
     // public function getData(string $id){
@@ -83,18 +89,22 @@ class authController extends Controller
             ], 403);
         }
 
+        $refreshtoken = rand(100000, 999999);
+
         $data->user_id = $idtokenbaru;
-        $data->token = rand(100000, 999999);
+        $data->token = $refreshtoken;
         $data->email = $request->email;
         $data->expires_at = now()->addMinutes(2);
         $data->update();
 
         $idtoken = Crypt::encrypt($data->user_id);
 
+        Mail::to($request->email)->send(new KodeVerifikasiMail($refreshtoken));
+
         return response()->json([
             'status' => true,
             'message' => 'berhasil refresh data baru',
-            'idtoken' => $idtoken
+            'idtoken' => $idtoken,
 
         ], 201);
         
@@ -198,14 +208,24 @@ class authController extends Controller
         $datauser->password = Hash::make($request->password);
         $datauser->save();
 
+        $tokenregis = rand(100000, 999999);
         
         $datamail->user_id = $datauser->id;
-        $datamail->token = rand(100000, 999999);
+        $datamail->token = $tokenregis;
         $datamail->email = $request->email;
         $datamail->expires_at = now()->addMinutes(2);
         $datamail->save();
 
         $idtoken = Crypt::encrypt($datauser->id);
+
+        $datasendmail = [
+            'name' => $request->name,
+            'token' => $tokenregis,
+            'idtoken' => $idtoken,
+            'email' => $request->email
+        ];
+
+        Mail::to($request->email)->send(new KodeVerifikasiMail($datasendmail));
 
         return response()->json([
             'status' => true,
@@ -332,4 +352,51 @@ class authController extends Controller
             'data' => $user
         ], 200);
     }
+
+    public function validasiForgotPassword(Request $request)
+    {
+        // dd($request);
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'password.required' => 'Password tidak boleh kosong.',
+            'password.min' => 'Password terlalu pendek :min characters.',
+            'password.confirmed' => 'Password tidak cocok.',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'proses validasi gagal',
+                'data' => $validator->errors()
+            ], 401);
+        }
+
+        $data = PasswordResetToken::where('token', $request->token)->first();
+
+        if (!$data) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Token tidak valid'
+            ], 401);
+        } else if ($data->expires_at < now()) {
+            $data->delete();
+            return response()->json([
+                'status' => false,
+                'message' => 'Token expired'
+            ], 401);
+        }
+
+        $user = User::where('email', $data->email)->first();
+        $user->password = Hash::make($request->password);
+        $user->update();
+
+        $data->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'berhasil proses reset password',
+        ], 200);
+    }
+    
 }
