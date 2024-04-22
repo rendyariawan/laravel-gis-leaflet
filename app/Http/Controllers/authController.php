@@ -56,7 +56,7 @@ class authController extends Controller
         if($validator->fails()){
             return response()->json([
                 'status' => false,
-                'message' => 'proses login gagal!!',
+                'message' => 'proses login gagal!!!',
                 'data' => $validator->errors()
             ], 401);
         }
