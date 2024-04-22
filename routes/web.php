@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LeafletController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +25,15 @@ Route::get('/map', function () {
 Route::get('/marker', function () {
     return view('leaflet.marker');
 });
+
+Route::get('/tampil-marker', function () {
+    return view('leaflet.tampil-marker');
+});
+
+Route::get('/upload', function () {
+    return view('leaflet.upload');
+});
+
 
 
 

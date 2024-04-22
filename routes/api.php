@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\authController;
+use App\Http\Controllers\LeafletController;
 use App\Http\Controllers\productController;
 use App\Http\Controllers\SendMailController;
+use App\Http\Controllers\ViewFoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -49,5 +51,14 @@ Route::post('refreshverification', [authController::class, 'refreshVerificationT
 
 Route::post('forgot-password-act', [SendMailController::class, 'forgotPassword']);
 Route::post('forgot-password-act-validasi', [authController::class, 'validasiForgotPassword']);
+
+Route::post('geojson', [LeafletController::class, 'storeGeojson']);
+Route::post('titikkoordinat', [LeafletController::class, 'storeTitikKoordinat']);
+Route::get('semuatitikkoordinat', [LeafletController::class, 'getTitikKoordinat']);
+Route::get('get-image/{id}', [LeafletController::class, 'getImageKoordinat']);
+Route::post('post-image', [LeafletController::class, 'storeTitikKoordinat']);
+
+
+Route::get('private/{file}', [ViewFoto::class, 'viewFoto'])->name('private');
 
 
