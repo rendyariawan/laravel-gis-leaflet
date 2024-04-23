@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\authController;
+use App\Http\Controllers\LeafletController;
 use App\Http\Controllers\productController;
+use App\Http\Controllers\SendMailController;
+use App\Http\Controllers\ViewFoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,19 +31,10 @@ Route::get('/', function(){
 })->name('login');
 
 
-
-
-// Route::get('product', [productController::class, 'index'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-list'));
-// Route::get('product/{id}', [productController::class, 'show'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-list'));
-// Route::put('product/{id}', [productController::class, 'update'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-list'));
-// Route::delete('product/{id}', [productController::class, 'destroy'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-list'));
-// Route::post('product', [productController::class, 'store'])->middleware('auth:sanctum', 'checkHost', ('ablity:product-store'));
-// Route::post('logoutUser', [authController::class, 'logout'])->middleware('auth:sanctum');
-// Route::get('me', [authController::class, 'me'])->middleware('auth:sanctum');
 Route::post('registerUser', [authController::class, 'registerUser']);
-Route::post('loginUser', [authController::class, 'loginUser']);
+Route::post('loginUser', [authController::class, 'loginUser'])->middleware('throttle:login');
 
-Route::group(['middleware' => ['auth:sanctum', 'checkHost']], function () {
+Route::group(['middleware' => ['auth:sanctum', 'checkHost', 'checkEmail']], function () {
     // Rute-rute yang memerlukan autentikasi dan pengecekan role
     Route::get('product', [productController::class, 'index'])->middleware(('ablity:product-list'));
     Route::get('product/{id}', [productController::class, 'show'])->middleware(('ablity:product-list'));
@@ -51,3 +45,20 @@ Route::group(['middleware' => ['auth:sanctum', 'checkHost']], function () {
     Route::get('me', [authController::class, 'me']);
     Route::get('refresh', [authController::class, 'refreshToken']);
 });
+
+Route::post('verification', [authController::class, 'verificationToken']);
+Route::post('refreshverification', [authController::class, 'refreshVerificationToken']);
+
+Route::post('forgot-password-act', [SendMailController::class, 'forgotPassword']);
+Route::post('forgot-password-act-validasi', [authController::class, 'validasiForgotPassword']);
+
+Route::post('geojson', [LeafletController::class, 'storeGeojson']);
+Route::post('titikkoordinat', [LeafletController::class, 'storeTitikKoordinat']);
+Route::get('semuatitikkoordinat', [LeafletController::class, 'getTitikKoordinat']);
+Route::get('get-image/{id}', [LeafletController::class, 'getImageKoordinat']);
+Route::post('post-image', [LeafletController::class, 'storeTitikKoordinat']);
+
+
+Route::get('private/{file}', [ViewFoto::class, 'viewFoto'])->name('private');
+
+

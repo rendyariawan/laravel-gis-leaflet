@@ -27,4 +27,15 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    public function render($request, Throwable $e)
+    {
+        if($e->getMessage() === 'Invalid ability provided.') {
+            return response()->json([
+                'message' => 'Akses tidak diperbolehkan'
+            ], 403);
+        }
+
+        return parent::render($request, $e);
+    }
 }
