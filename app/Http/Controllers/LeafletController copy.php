@@ -66,7 +66,7 @@ class LeafletController extends Controller
                 $titikKoordinat->save();
             }
 
-            return response()->json(['success' => true, 'message' => 'Files uploaded successfully', 'files' => $uploadedFiles]);
+            return response()->json(['success' => true, 'message' => 'Files uploaded successfullyy', 'files' => $uploadedFiles]);
         }
 
         return response()->json(['success' => false, 'message' => 'No files selected for upload']);
