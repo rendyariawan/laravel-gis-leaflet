@@ -12,11 +12,14 @@ $.ajax({
                     layer.on("click", function (e) {
                         let image = feature.image;
                         const images = image.map(function (image) {
+
+                            const filename = image.filename || "";
+
                             const gambar =
                                 '<div class="col-sm-4"><a target="_blank" href="http://127.0.0.1:8000/storage/images/' +
-                                image.filename +
+                                filename +
                                 '" data-toggle="lightbox" data-title="sample 1 - white" data-gallery="gallery"><img class="img-fluid mb-2" alt="white sample" src="http://127.0.0.1:8000/storage/images/' +
-                                image.filename +
+                                filename +
                                 '"/></a></div>';
 
                             return gambar;

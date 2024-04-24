@@ -87,9 +87,13 @@ rencana next:</br>
 
 cara install pertama</br>
 git clone</br>
-npm install</br>
-setting mailer</br>
+composer install</br>
+-- sampai sini bisa langsung jalankan php artisan serve --</br>
+copy .env.example .env</br>
 setting database</br>
+setting mailer</br>
+php artisan key:generate</br>
+php artisan migrate</br>
 
 
 MAIL_MAILER=smtp</br>
