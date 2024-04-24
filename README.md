@@ -94,6 +94,7 @@ setting database</br>
 setting mailer</br>
 php artisan key:generate</br>
 php artisan migrate</br>
+p
 
 
 MAIL_MAILER=smtp</br>
